@@ -1,15 +1,18 @@
-import RestaurantCard from "./RestaurantCard";
-import { useEffect, useState } from "react";
+import RestaurantCard, { withPromotedLabel } from "./RestaurantCard";
+import { useEffect, useState, useContext } from "react";
 import resObj from "../utils/mockData";
 import Shimmer from "./Shimmer";
 import { Link } from "react-router-dom";
 import useOnlineStatus from "../utils/useOnlineStatus";
+// import UserContext from "../utils/UserContext";
+import UserContext from "../utils/UserContext";
 
 const Body = () => {
   const [allRestro, setAllRestro] = useState([]);
   const [filteredRestro, setFilteredRestro] = useState([]);
   const [searchText, setSearchText] = useState("");
 
+  const RestaurantCardPromoted = withPromotedLabel(RestaurantCard);
   // function filteredData(searchText,allRestro){
   //   const filterData=allRestro.filter((restro)=>
   //   restro.info.name.toLowerCase().includes(searchText)
@@ -83,7 +86,7 @@ const Body = () => {
   //     },
   //   },
   // ];
-
+  // console.log("Body rendered", allRestro);
   useEffect(() => {
     //API Call
     getRestroFunc();
@@ -109,24 +112,28 @@ const Body = () => {
   }
   // console.log("body rendered");
 
-const onlineStatus=useOnlineStatus();
-if(onlineStatus===false)
-return(
-  <h1>Looks like you are offline!! Please check your internet connection</h1>
-)
+  const onlineStatus = useOnlineStatus();
+  if (onlineStatus === false)
+    return (
+      <h1>
+        Looks like you are offline!! Please check your internet connection
+      </h1>
+    );
+
+    const {loggedInUser,setUserName} = useContext(UserContext);
 
   return allRestro.length === 0 ? (
     <Shimmer />
   ) : (
     <div className="body">
-      <div className="filter">
+      <div className="search m-4 p-4">
         <button
-          className="filter-btn"
+          className="search-btn px-4 py-2 bg-green-200 m-4 rounded-lg"
           onClick={() => {
             const filteredList = allRestro.filter(
               (res) => res.info.avgRating > 4
             );
-            console.log(filteredList);
+            // console.log(filteredList);
             setFilteredRestro(filteredList);
           }}
         >
@@ -135,17 +142,17 @@ return(
 
         <input
           type="text"
-          className="search-input"
-          placeholder="Search"
+          className="search-input border border-solid border-black"
+          placeholder=""
           value={searchText}
           onChange={(e) => {
             setSearchText(e.target.value);
           }}
         />
         <button
-          className="search-btn"
+          className="search-btn px-4 py-2 bg-green-200 m-4 rounded-lg"
           onClick={() => {
-            console.log(searchText);
+            // console.log(searchText);
             const filteredData = allRestro.filter((res) =>
               res.info.name.toLowerCase().includes(searchText.toLowerCase())
             );
@@ -155,13 +162,31 @@ return(
         >
           Search
         </button>
+        <label>Username : </label>
+        {console.log(loggedInUser)}
+        {/* {console.log(setUserName)} */}
+        <input
+          value={loggedInUser}
+          className="border border-black p-2"
+          onChange={(e)=>{
+            setUserName(e.target.value)
+          }}
+        />
       </div>
-      <div className="restro-container">
+      <div className="restro-container flex flex-wrap">
         {/* //you can use for loops as well */}
         {filteredRestro.map((res) => {
           return (
-            <Link className="link" to={"/restaurants/"+res.info.id} key={res.info.id}>
-              <RestaurantCard resData={res} />
+            <Link
+              className="link"
+              to={"/restaurants/" + res.info.id}
+              key={res.info.id}
+            >
+              {res.info.isOpen ? (
+                <RestaurantCardPromoted resData={res} />
+              ) : (
+                <RestaurantCard resData={res} />
+              )}
             </Link>
           );
         })}

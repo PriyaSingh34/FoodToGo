@@ -3,6 +3,7 @@ import { CDN_URL } from "../utils/constants";
 
 const RestaurantCard = (props) => {
     const { resData } = props;
+
     const {
       cloudinaryImageId,
       name,
@@ -12,13 +13,13 @@ const RestaurantCard = (props) => {
       deliveryTime,
     } = resData.info;
     return (
-      <div className="res-card">
+      <div className="flex flex-col rounded-lg hover:bg-gray-400 m-4 p-4 w-[250px] h-[425px] bg-gray-200">
         <img
           src={CDN_URL+cloudinaryImageId}
           alt=""
-          className="res-img"
+          className="res-img w-56 h-48 rounded-lg"
         />
-        <h3 className="card-title">{name}</h3>
+        <h3 className="card-title font-bold py-3 text-lg">{name}</h3>
         <div className="card-info">
           <h4 className="info">{cuisines.join(", ")}</h4>
           <h4 className="info">{avgRating } stars</h4>
@@ -40,5 +41,21 @@ const RestaurantCard = (props) => {
     //   </div>
     // );
   };
+
+
+  //Higher order component
+
+  //input-RestaurantCard=> RestaurantCardPromoted
+
+ export const withPromotedLabel=(RestaurantCard)=>{
+    return (props)=>{
+      return (
+        <div>
+          <label className="absolute bg-black rounded-lg m-2 p-2 text-white">Open</label>
+          <RestaurantCard {...props}/>
+        </div>
+      )
+    }
+  }
 
   export default RestaurantCard;
